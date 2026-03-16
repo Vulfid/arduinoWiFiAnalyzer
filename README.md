@@ -9,7 +9,7 @@ A handheld Wi-Fi network scanner and 2.4 GHz channel analyzer built on the ESP32
 
 ## Why This Exists
 
-I work with 802.11 access points professionally — validating firmware across Wi-Fi 6/6E/7 hardware, writing automated test suites, and debugging RF issues in shielded chambers. This project takes that domain knowledge and puts it into a self-contained embedded application, demonstrating wireless expertise implemented in C++ rather than just described on a resume.
+I work with 802.11 access points professionally — validating firmware across Wi-Fi 6/6E/7 hardware, writing automated test suites, and debugging RF issues in shielded chambers. This project takes that domain knowledge and puts it into a self-contained embedded application, demonstrating wireless expertise implemented in C++. Also, just cause I thought it'd be neat.
 
 ---
 
