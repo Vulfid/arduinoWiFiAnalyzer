@@ -1,6 +1,6 @@
 # ESP32 Wi-Fi Scanner & Channel Analyzer
 
-A handheld Wi-Fi network scanner and 2.4 GHz channel analyzer built on the ESP32 microcontroller. Scans the RF environment, reports every visible access point, and recommends the least-congested non-overlapping channel — the same core analysis performed by enterprise site survey tools, running on a $10 dev board.
+A handheld Wi-Fi network scanner and 2.4 GHz channel analyzer built on the ESP32 microcontroller. Scans the RF environment, reports every visible access point, and recommends the least-congested non-overlapping channel — the same core analysis performed by enterprise site survey tools, running on a $10 dev board. Includes a 128x64 OLED display that renders a real-time channel congestion bar chart.
 
 <!-- TODO: Add a photo of the physical setup here -->
 <!-- ![Hardware Setup](docs/hardware_photo.jpg) -->
@@ -20,6 +20,7 @@ I work with 802.11 access points professionally — validating firmware across W
 - **Overlap-Aware Scoring** — Congestion calculation accounts for 802.11 channel overlap (22 MHz channel width on 5 MHz spacing), not just co-channel networks
 - **Channel Recommendation** — Recommends the best non-overlapping channel (1, 6, or 11) based on weighted congestion analysis
 - **Signal-Weighted Interference** — Strong nearby APs are weighted more heavily than weak distant ones, reflecting real-world co-channel interference behavior
+- **OLED Visualization** — Real-time 2.4 GHz channel congestion bar chart on a 128x64 SSD1306 display, with the recommended channel highlighted
 - **Formatted Serial Output** — Structured, readable reports over the serial monitor
 
 ---
@@ -38,11 +39,13 @@ I work with 802.11 access points professionally — validating firmware across W
 │                  │     best channel recommendation
 └────────┬────────┘
          │
-         ▼
-┌─────────────────┐
-│  DisplayManager  │──── Formatted serial output
-│                  │     (tables, bars, reports)
-└─────────────────┘
+    ┌────┴────┐
+    ▼         ▼
+┌──────────┐ ┌──────────┐
+│ Display  │ │   OLED   │
+│ Manager  │ │  Display │
+│ (serial) │ │ (I2C)    │
+└──────────┘ └──────────┘
 ```
 
 | Class | Responsibility |
@@ -51,6 +54,7 @@ I work with 802.11 access points professionally — validating firmware across W
 | `NetworkScanner` | Drives ESP32 Wi-Fi scan, builds and sorts result set |
 | `ChannelAnalyzer` | Aggregates scan data per channel, computes overlap-aware congestion scores, recommends best channel |
 | `DisplayManager` | Renders scan results and channel reports to the serial monitor |
+| `OledDisplay` | Drives the SSD1306 OLED over I2C — draws channel congestion bar chart and scan summary |
 
 ---
 
@@ -58,11 +62,26 @@ I work with 802.11 access points professionally — validating firmware across W
 
 | Component | Purpose |
 |-----------|---------|
-| ESP32-WROOM-32 dev board | Wi-Fi scanning and computation |
-| Micro-USB cable | Power and serial communication |
-| 0.96" OLED display (SSD1306, I2C) | *Optional — future enhancement* |
+| ESP32-S3 dev board | Wi-Fi scanning and computation |
+| 0.96" OLED display (SSD1306, 128x64, I2C) | Real-time channel congestion bar chart |
+| USB-C cable (data-capable) | Power and serial communication |
+| 4 jumper wires (F-F) | I2C connection between ESP32 and OLED |
 
-Total cost: ~$10-15
+Total cost: ~$15-20
+
+### OLED Wiring
+
+Connect four pins from the SSD1306 OLED module to the ESP32-S3:
+
+| OLED Pin | ESP32-S3 Pin | Wire Color (suggested) |
+|----------|-------------|----------------------|
+| VCC | 3.3V | Red |
+| GND | GND | Black |
+| SDA | GPIO 8 | Blue |
+| SCL | GPIO 9 | Yellow |
+
+<!-- TODO: Add a photo of the wired OLED display -->
+<!-- ![OLED Wiring](docs/oled_wiring.jpg) -->
 
 ---
 
@@ -162,13 +181,15 @@ This analyzer accounts for that overlap by computing a weighted congestion score
 │   ├── access_point_info.h     AP data struct and formatting
 │   ├── network_scanner.h       Wi-Fi scan driver
 │   ├── channel_analyzer.h      Channel stats and congestion scoring
-│   └── display_manager.h       Serial output formatting
+│   ├── display_manager.h       Serial output formatting
+│   └── oled_display.h          SSD1306 OLED display driver
 ├── src/
 │   ├── main.cpp                Entry point (setup/loop)
 │   ├── access_point_info.cpp   AP struct method implementations
 │   ├── network_scanner.cpp     Scan logic and result building
 │   ├── channel_analyzer.cpp    Overlap-aware analysis engine
-│   └── display_manager.cpp     Formatted report rendering
+│   ├── display_manager.cpp     Formatted report rendering
+│   └── oled_display.cpp        OLED bar chart and summary rendering
 ├── LICENSE                     MIT
 └── README.md
 ```
@@ -179,7 +200,7 @@ This analyzer accounts for that overlap by computing a weighted congestion score
 
 - [ ] Web UI served directly from the ESP32 (connect to device IP in a browser)
 - [ ] JSON API endpoint for scan data consumption by external tools
-- [ ] OLED display output (SSD1306 via I2C)
+- [x] OLED display output (SSD1306 via I2C) — channel congestion bar chart
 - [ ] 5 GHz band scanning and per-band analysis
 - [ ] Continuous mode with RSSI trending over time
 - [ ] Hidden SSID detection (beacon frames with empty SSID field)
