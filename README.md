@@ -2,8 +2,7 @@
 
 A handheld Wi-Fi network scanner and 2.4 GHz channel analyzer built on the ESP32 microcontroller. Scans the RF environment, reports every visible access point, and recommends the least-congested non-overlapping channel — the same core analysis performed by enterprise site survey tools, running on a $10 dev board. Includes a 128x64 OLED display that renders a real-time channel congestion bar chart.
 
-<!-- TODO: Add a photo of the physical setup here -->
-<!-- ![Hardware Setup](docs/hardware_photo.jpg) -->
+![ESP32-S3 with SSD1306 OLED displaying channel congestion bar chart](hardware_photo.jpg)
 
 ---
 
