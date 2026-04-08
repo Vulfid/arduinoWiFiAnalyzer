@@ -76,9 +76,38 @@ void OledDisplay::drawChannelChart(
         uint8_t y = CHART_BOTTOM - bar_h;
 
         if (stats[i].channel == recommended_channel) {
-            // Recommended channel: filled bar with white border
-            oled_.fillRect(x, y, BAR_WIDTH, bar_h, SSD1306_WHITE);
-            oled_.drawRect(x, CHART_TOP, BAR_WIDTH, CHART_HEIGHT, SSD1306_WHITE);
+            if (bar_h > 0) {
+                oled_.fillRect(x, y, BAR_WIDTH, bar_h, SSD1306_WHITE);
+            }
+            uint8_t cx = x + BAR_WIDTH / 2;
+            uint8_t cy = CHART_TOP + 4;
+            // Clear interior so heart is visible against a full bar
+            static const int8_t fill[][2] = {
+                {-1,-2},{0,-2},{1,-2},           {3,-2},{4,-2},{5,-2},
+                {-2, -1},{-1,-1},{0,-1},{1,-1},{2,-1},{3,-1},{4,-1},{5,-1},{6,-1},
+                {-2, 0},{-1, 0},{0, 0},{1, 0},{2, 0},{3, 0},{4, 0},{5, 0},{6, 0},
+                {-1, 1},{0, 1},{1, 1},{2, 1},{3, 1},{4, 1},{5, 1},
+                { 0, 2},{1, 2},{2, 2},{3, 2},{4, 2},
+                { 1, 3},{2, 3},{3, 3},
+                { 2, 4},
+            };
+            for (auto& p : fill) {
+                oled_.drawPixel(cx + p[0] - 2, cy + p[1], SSD1306_BLACK);
+            }
+            static const int8_t heart[][2] = {
+                {-1,-3},{0,-3},{1,-3},           {3,-3},{4,-3},{5,-3},
+                {-2,-2},                  {2,-2},                  {6,-2},
+                {-3,-1},                                           {7,-1},
+                {-3, 0},                                           {7, 0},
+                {-2, 1},                                    {6, 1},
+                {-1, 2},                             {5, 2},
+                { 0, 3},                      {4, 3},
+                { 1, 4},               {3, 4},
+                { 2, 5},
+            };
+            for (auto& p : heart) {
+                oled_.drawPixel(cx + p[0] - 2, cy + p[1], SSD1306_WHITE);
+            }
         } else if (bar_h > 0) {
             oled_.fillRect(x, y, BAR_WIDTH, bar_h, SSD1306_WHITE);
         }
